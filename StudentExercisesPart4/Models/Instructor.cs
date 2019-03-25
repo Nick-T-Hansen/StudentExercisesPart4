@@ -3,6 +3,7 @@ using System;
 namespace StudentExercisesPart4
 {    public class Instructor
     {
+        /*
         public Instructor(string firstN, string lastN, string slackHandle, int cohortId)
         {
             //constructor for Instructor object
@@ -11,6 +12,7 @@ namespace StudentExercisesPart4
             Slack = slackHandle;
             CohortId = cohortId;
         }
+        */
 
         //Instructor object properties
         public int Id { get; set; }
@@ -18,6 +20,8 @@ namespace StudentExercisesPart4
         public string LastName {get; set;}
         public string Slack {get; set;}
         public int CohortId {get; set;}
+
+        public Cohort Cohort { get; set; }
 
     }
 }

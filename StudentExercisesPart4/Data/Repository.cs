@@ -16,6 +16,7 @@ namespace StudentExercisesPart4.Data
             }
         }
 
+        //---------------------------------------------SELECT ALL EXERCIES------------------------------------------
         public List<Exercise> GetAllExercises()
         {
             using (SqlConnection conn = Connection)
@@ -46,6 +47,7 @@ namespace StudentExercisesPart4.Data
                 }
             }
         }
+        //---------------------------------------------ADD AN EXERCIES------------------------------------------
         public void AddExercise(Exercise exercise)
         {
             using (SqlConnection conn = Connection)
@@ -54,12 +56,100 @@ namespace StudentExercisesPart4.Data
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = $@"INSERT INTO Exercise (ExerciseName, ExerciseLanguage)
-                                           VALUES ('{exercise.ExerciseName}', '{exercise.ExerciseLanguage}')";
+                                           VALUES (@ExerciseName, @ExerciseLanguage)";
+
+                    cmd.Parameters.Add(new SqlParameter("@ExerciseName", exercise.ExerciseName));
+                    cmd.Parameters.Add(new SqlParameter("@ExerciseLanguage", exercise.ExerciseLanguage));
                     cmd.ExecuteNonQuery();
     
                 }
             }
         }
+        // ---------------------------------------------SELECT ALL INSTRUCTORS------------------------------------------
+        public List<Instructor> GetAllInstructors()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $@"SELECT i.FirstName, i.LastName, c.CohortName
+                                        FROM Instructor i
+                                        LEFT JOIN Cohort c on i.cohort_id = c.Id";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Instructor> instructors = new List<Instructor>();
+
+                    while (reader.Read())
+                    {
+                        Instructor instructor = new Instructor
+                        {
+                            //Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            Cohort = new Cohort
+                            {
+                                CohortName = reader.GetString(reader.GetOrdinal("CohortName"))
+                            }
+                        };
+
+                        instructors.Add(instructor);
+                    }
+
+                    reader.Close();
+                    return instructors;
+                }
+            }
+        }
+        // ---------------------------------------------SELECT ALL INSTRUCTORS------------------------------------------
+        public void AddInstructor(Instructor instructor)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $@"INSERT INTO Instructor (FirstName, LastName, Slack, Cohort_id)
+                                           VALUES (@FirstName, @LastName, @Slack, @Cohort_id)";
+
+                    cmd.Parameters.Add(new SqlParameter("@FirstName", instructor.FirstName));
+                    cmd.Parameters.Add(new SqlParameter("@LastName", instructor.LastName));
+                    cmd.Parameters.Add(new SqlParameter("@Slack", instructor.Slack));
+                    cmd.Parameters.Add(new SqlParameter("@Cohort_id", instructor.CohortId));
+                    cmd.ExecuteNonQuery();
+
+                }
+            }
+        }
+        //--------------------------------------- UPDATE STUDENT EXERCISE-------------------------------------
+        public void UpdateStudentWithExercise(int studentId, int exerciseId)
+        {           
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    /*
+                    cmd.CommandText = @"UPDATE Student
+                                           SET FirstName = @FirstName, LastName = @LastName, Slack = @Slack, Cohort_id = @Cohort_id
+                                         WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", student.Id));
+                    cmd.Parameters.Add(new SqlParameter("@FirstName", student.FirstName));
+                    cmd.Parameters.Add(new SqlParameter("@LastName", student.LastName));
+                    cmd.Parameters.Add(new SqlParameter("@Slack", student.Slack));
+                    cmd.Parameters.Add(new SqlParameter("@Cohort_id", student.CohortId));
+                    */
+
+                    cmd.CommandText = $@"INSERT INTO StudentExercise (Student_id, Exercise_id)
+                                        VALUES (@Student_id, @Exercise_id)";
+                    cmd.Parameters.Add(new SqlParameter("@Student_id", studentId));
+                    cmd.Parameters.Add(new SqlParameter("@Exercise_id", exerciseId));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         /*
         public List<Student> GetAllStudents()
         {
@@ -122,8 +212,8 @@ namespace StudentExercisesPart4.Data
 
                     return students.Values.ToList();
                     */
-               // }
-          //  }
+        // }
+        //  }
         //
     }
 }       
